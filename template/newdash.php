@@ -1,12 +1,23 @@
 <?php
-
+session_start();
 
 $conn = new mysqli('localhost', 'root', '', 'medi_claim');
 if (mysqli_connect_errno()) {
                 echo "Error: Could not connect to database.";
                 exit;
             }
+			
+			if(isset($_POST["user_accept"])){
+				$sql = "UPDATE recent_claims SET amount=0 WHERE claim_no=763648" ;
+				$result = $conn->query($sql);
+				unset($_POST["user_accept"]);
+			}
 
+			if(isset($_POST["user_reject"])){
+				$sql = "UPDATE recent_claims SET amount=0 WHERE claim_no=763648" ;
+				$result = $conn->query($sql);
+				unset($_POST["user_accept"]);
+			}
 
 
 ?>
@@ -33,6 +44,9 @@ if (mysqli_connect_errno()) {
 	<link rel="icon" type="image/png" sizes="96x96" href="assets/img/favicon.png">
 	<!-- CUSTOM CSS -->
 	<style type="text/css"></style>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+	
+
 
 
 </head>
@@ -114,7 +128,7 @@ if (mysqli_connect_errno()) {
 												<th>Name</th>
 												<th>Amount</th>
 												<th>Date &amp; Time</th>
-												<th>Status</th>
+												<th>Action</th>
 											</tr>
 										</thead>
 										<tbody>
@@ -128,13 +142,21 @@ if (mysqli_connect_errno()) {
 												//echo $js;
 
 												while($row = $result->fetch_assoc()) {
-													echo '<tr>
-													<td><a href="#">'.$row["claim_no"].'</a></td>
-													<td>'.$row["name"].'</td>
-													<td>'.$row["amount"].'</td>
-													<td>'.$row["date"].'</td>
-													<td><span class="label label-success">'.$row["status"].'</span></td>
-												</tr>';
+													if($row["status"]=="PENDING")
+													{
+														echo '<tr>
+														<td><a href="#">'.$row["claim_no"].'</a></td>
+														<td>'.$row["name"].'</td>
+														<td>'.$row["amount"].'</td>
+														<td>'.$row["date"].'</td>;
+														<td>
+															<form action="newdash.php" method="post">
+																<button type="submit" id="trial" class="btn btn-success" name="user_accept" value="'.$row["name"].'">Accept</button>
+																<button type="submit" id="trial" class="btn btn-danger" name="user_reject" value="'.$row["name"].'">Reject</button>
+															</form>
+														</td>';
+														
+													 }													
 													
 												}
 												
@@ -143,41 +165,7 @@ if (mysqli_connect_errno()) {
 
 
 											?>
-											<tr>
-												<td><a href="#">763648</a></td>
-												<td>Saurabh</td>
-												<td>Rs. 100000</td>
-												<td>Oct 21, 2018</td>
-												<td><span class="label label-success">COMPLETED</span></td>
-											</tr>
-											<!--<tr>
-												<td><a href="#">763649</a></td>
-												<td>Mridul</td>
-												<td>Rs. 62000</td>
-												<td>Nov 2, 2018</td>
-												<td><span class="label label-warning">PENDING</span></td>
-											</tr>
-											<tr>
-												<td><a href="#">763650</a></td>
-												<td>Kewal</td>
-												<td>Rs. 30400</td>
-												<td>Jan 18, 2018</td>
-												<td><span class="label label-danger">REJECTED</span></td>
-											</tr>
-											<tr>
-												<td><a href="#">763651</a></td>
-												<td>John</td>
-												<td>Rs.186000</td>
-												<td>Oct 17, 2019</td>
-												<td><span class="label label-success">COMPLETED</span></td>
-											</tr>
-											<tr>
-												<td><a href="#">763652</a></td>
-												<td>Smith</td>
-												<td>Rs. 36200</td>
-												<td>Feb 16, 2019</td>
-												<td><span class="label label-success">COMPLETED</span></td>
-											</tr>-->
+
 										</tbody>
 									</table>
 								</div>
@@ -194,4 +182,23 @@ if (mysqli_connect_errno()) {
 
 
 </body>
+<!--<script>
+								$(document).ready(function(){
+									$('#trial').click(function(){
+										alert("Nutton click");
+										$.ajax({
+											type : "POST",
+											url : "/newdash2.php",
+											dataType : JSON,
+											data : {name : "Saurabh";},
+											success:function(){
+												alert("func called");
+											}
+
+										});
+								});
+								});
+					
+				
+	</script>-->
 </html>
