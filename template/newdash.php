@@ -15,12 +15,6 @@ session_start();
 				//echo $sql;
 				$result = $conn->query($sql);
 				unset($_POST["user_accept"]);
-
-				if ($conn->query($sql) === TRUE) {
-					echo "Record updated successfully";
-				} else {
-					echo "Error updating record: " . $conn->error;
-				}
 				
 			}
 
@@ -29,13 +23,7 @@ session_start();
 				$sql = 'UPDATE recent_claims SET claim_status="REJECTED" WHERE username="'.$name.'"';
 				$result = $conn->query($sql);
 				unset($_POST["user_reject"]);
-
-				if ($conn->query($sql) === TRUE) {
-					echo "Record updated successfully";
-				} else {
-					echo "Error updating record: " . $conn->error;
-				}
-				
+			
 			}
 
 
