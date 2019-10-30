@@ -1,12 +1,42 @@
 <?php
+session_start();
 
-
-$conn = new mysqli('localhost', 'root', '', 'medi_claim');
-if (mysqli_connect_errno()) {
+			$conn = new mysqli('localhost', 'root', '', 'medi_claim');
+			if (mysqli_connect_errno())
+			{
                 echo "Error: Could not connect to database.";
                 exit;
             }
+			
+			if(isset($_POST["user_accept"])){
+				$name = $_POST["user_accept"];
+				//echo $name;
+				$sql = 'UPDATE recent_claims SET claim_status="APPROVED" WHERE username="'.$name.'"';
+				//echo $sql;
+				$result = $conn->query($sql);
+				unset($_POST["user_accept"]);
 
+				if ($conn->query($sql) === TRUE) {
+					echo "Record updated successfully";
+				} else {
+					echo "Error updating record: " . $conn->error;
+				}
+				
+			}
+
+			if(isset($_POST["user_reject"])){
+				$name = $_POST["user_reject"];
+				$sql = 'UPDATE recent_claims SET claim_status="REJECTED" WHERE username="'.$name.'"';
+				$result = $conn->query($sql);
+				unset($_POST["user_reject"]);
+
+				if ($conn->query($sql) === TRUE) {
+					echo "Record updated successfully";
+				} else {
+					echo "Error updating record: " . $conn->error;
+				}
+				
+			}
 
 
 ?>
@@ -33,6 +63,9 @@ if (mysqli_connect_errno()) {
 	<link rel="icon" type="image/png" sizes="96x96" href="assets/img/favicon.png">
 	<!-- CUSTOM CSS -->
 	<style type="text/css"></style>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+	
+
 
 
 </head>
@@ -114,7 +147,7 @@ if (mysqli_connect_errno()) {
 												<th>Name</th>
 												<th>Amount</th>
 												<th>Date &amp; Time</th>
-												<th>Status</th>
+												<th>Action</th>
 											</tr>
 										</thead>
 										<tbody>
@@ -128,13 +161,21 @@ if (mysqli_connect_errno()) {
 												//echo $js;
 
 												while($row = $result->fetch_assoc()) {
-													echo '<tr>
-													<td><a href="#">'.$row["claim_no"].'</a></td>
-													<td>'.$row["name"].'</td>
-													<td>'.$row["amount"].'</td>
-													<td>'.$row["date"].'</td>
-													<td><span class="label label-success">'.$row["status"].'</span></td>
-												</tr>';
+													if($row["claim_status"]=="PENDING")
+													{
+														echo '<tr>
+														<td><a href="#">'.$row["claim_no"].'</a></td>
+														<td>'.$row["username"].'</td>
+														<td>'.$row["amount"].'</td>
+														<td>'.$row["date"].'</td>;
+														<td>
+															<form action="newdash.php" method="post">
+																<button type="submit" id="trial" class="btn btn-success" name="user_accept" value="'.$row["username"].'">Accept</button>
+																<button type="submit" id="trial" class="btn btn-danger" name="user_reject" value="'.$row["username"].'">Reject</button>
+															</form>
+														</td>';
+														
+													 }													
 													
 												}
 												
@@ -143,41 +184,126 @@ if (mysqli_connect_errno()) {
 
 
 											?>
+
+										</tbody>
+									</table>
+								</div>
+								<div class="panel-footer">
+									<div class="row">
+										<div class="col-md-6"><span class="panel-note"><i class="fa fa-clock-o"></i> Last 24 hours</span></div>
+										<div class="col-md-6 text-right"><a href="#" class="btn btn-primary">View All Claims</a></div>
+									</div>
+								</div>
+							</div>
+							<!-- END RECENT PURCHASES -->
+														<!-- RECENT CLAIMS -->
+														<div class="panel">
+								<div class="panel-heading">
+									<h3 class="panel-title">Approved Claims</h3>
+									<div class="right">
+										<button type="button" class="btn-toggle-collapse"><i class="lnr lnr-chevron-up"></i></button>
+										<button type="button" class="btn-remove"><i class="lnr lnr-cross"></i></button>
+									</div>
+								</div>
+								<div class="panel-body no-padding">
+									<table class="table table-striped">
+										<thead>
 											<tr>
-												<td><a href="#">763648</a></td>
-												<td>Saurabh</td>
-												<td>Rs. 100000</td>
-												<td>Oct 21, 2018</td>
-												<td><span class="label label-success">COMPLETED</span></td>
+												<th>Claim No.</th>
+												<th>Name</th>
+												<th>Amount</th>
+												<th>Date &amp; Time</th>
 											</tr>
-											<!--<tr>
-												<td><a href="#">763649</a></td>
-												<td>Mridul</td>
-												<td>Rs. 62000</td>
-												<td>Nov 2, 2018</td>
-												<td><span class="label label-warning">PENDING</span></td>
-											</tr>
+										</thead>
+										<tbody>
+											<?php
+												$sql = "SELECT * FROM recent_claims";
+												$result = $conn->query($sql);
+
+												
+												//$row = $result->fetch_assoc();
+												//$js = 'console.log($result)';
+												//echo $js;
+
+												while($row = $result->fetch_assoc()) {
+													if($row["claim_status"]=="APPROVED")
+													{
+														echo '<tr>
+														<td><a href="#">'.$row["claim_no"].'</a></td>
+														<td>'.$row["username"].'</td>
+														<td>'.$row["amount"].'</td>
+														<td>'.$row["date"].'</td>';
+													
+													 }													
+													
+												}
+												
+
+
+
+
+											?>
+
+										</tbody>
+									</table>
+								</div>
+								<div class="panel-footer">
+									<div class="row">
+										<div class="col-md-6"><span class="panel-note"><i class="fa fa-clock-o"></i> Last 24 hours</span></div>
+										<div class="col-md-6 text-right"><a href="#" class="btn btn-primary">View All Claims</a></div>
+									</div>
+								</div>
+							</div>
+							<!-- END RECENT PURCHASES -->
+														<!-- RECENT CLAIMS -->
+														<div class="panel">
+								<div class="panel-heading">
+									<h3 class="panel-title">Rejected Claims</h3>
+									<div class="right">
+										<button type="button" class="btn-toggle-collapse"><i class="lnr lnr-chevron-up"></i></button>
+										<button type="button" class="btn-remove"><i class="lnr lnr-cross"></i></button>
+									</div>
+								</div>
+								<div class="panel-body no-padding">
+									<table class="table table-striped">
+										<thead>
 											<tr>
-												<td><a href="#">763650</a></td>
-												<td>Kewal</td>
-												<td>Rs. 30400</td>
-												<td>Jan 18, 2018</td>
-												<td><span class="label label-danger">REJECTED</span></td>
+												<th>Claim No.</th>
+												<th>Name</th>
+												<th>Amount</th>
+												<th>Date &amp; Time</th>
 											</tr>
-											<tr>
-												<td><a href="#">763651</a></td>
-												<td>John</td>
-												<td>Rs.186000</td>
-												<td>Oct 17, 2019</td>
-												<td><span class="label label-success">COMPLETED</span></td>
-											</tr>
-											<tr>
-												<td><a href="#">763652</a></td>
-												<td>Smith</td>
-												<td>Rs. 36200</td>
-												<td>Feb 16, 2019</td>
-												<td><span class="label label-success">COMPLETED</span></td>
-											</tr>-->
+										</thead>
+										<tbody>
+											<?php
+												$sql = "SELECT * FROM recent_claims";
+												$result = $conn->query($sql);
+
+												
+												//$row = $result->fetch_assoc();
+												//$js = 'console.log($result)';
+												//echo $js;
+
+												while($row = $result->fetch_assoc()) {
+													if($row["claim_status"]=="REJECTED")
+													{
+														echo '<tr>
+														<td><a href="#">'.$row["claim_no"].'</a></td>
+														<td>'.$row["username"].'</td>
+														<td>'.$row["amount"].'</td>
+														<td>'.$row["date"].'</td>';
+														
+														
+													 }													
+													
+												}
+												
+
+
+
+
+											?>
+
 										</tbody>
 									</table>
 								</div>
